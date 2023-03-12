@@ -2,9 +2,9 @@
 const React = require('react')
 const Default = require('./layouts/Default')
 
-function Index({breads}) {
+function Index({breads, title}) {
     return (
-        <Default>
+        <Default title={title}>
             <h2>Index Page</h2>
             {/* <p>My favorite bread is {breads[1].name}!</p> */}
 
