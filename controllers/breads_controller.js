@@ -5,12 +5,18 @@ const Bread = require('../models/bread.js')
 
 // SHOW ROUTE
 breads_router.get('/:arrayIndex', (req, res) => {
-    res.send(Bread[req.params.arrayIndex])
+    if (Bread[req.params.arrayIndex]) {
+        res.render('Show', {
+            bread: Bread[req.params.arrayIndex]
+        })
+    } else {
+        res.send('Whoopsie, page not found.')
+    }
 })
 
 // INDEX
 breads_router.get('/', (req, res) => {
-    res.render('index', 
+    res.render('Show', 
     {
         breads: Bread,
         title: 'Index Page'
