@@ -12,11 +12,18 @@ breads_router.get('/new', (req, res) => {
 breads_router.get('/:arrayIndex', (req, res) => {
     if (Bread[req.params.arrayIndex]) {
         res.render('Show', {
-            bread:Bread[req.params.arrayIndex]
+            bread:Bread[req.params.arrayIndex],
+            index: req.params.arrayIndex,
         })
     } else {
         res.send('Whoopsie, page not found.')
     }
+})
+
+// DELETE ROUTE
+breads_router.delete('/:arrayIndex', (req, res) => {
+    Bread.splice(req.params.arrayIndex, 1)
+    res.status(303).redirect('/breads')
 })
 
 // INDEX
