@@ -1,43 +1,54 @@
-
 const React = require('react')
-const Default = require('./layouts/Default')
+const Default = require('./layouts/default')
 
-function Edit({bread, index}) {
+function Edit({ bread, bakers }) {
     return (
         <Default>
-            <h2>Edit a bread</h2>
-            <form action={`/breads/${index}?_method=PUT`} method="POST">
+            <h2>Edit Bread Page</h2>
+
+            <form action={`/breads/${bread.id}?_method=PUT`} method="POST">
                 <label htmlFor="name">Name</label>
-                <input 
-                type="text" 
-                name="name" 
-                id="name" 
-                required 
-                defaultValue={bread.name}
-                />
-                
+                <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    required
+                    defaultValue={bread.name} />
+
                 <label htmlFor="image">Image</label>
-                <input 
-                type="text" 
-                name="image" 
-                id="image" 
-                defaultValue={bread.image}
-                />
+                <input
+                    type="text"
+                    name="image"
+                    id="image"
+                    defaultValue={bread.image} />
 
-                <label htmlFor="hasGluten">Has Gluten?</label>
-                <input 
-                type="checkbox" 
-                name="hasGluten" 
-                id="hasGluten" 
-                defaultChecked={bread.hasGluten}
-                />
+                <label htmlFor="baker">Baker</label>
+                <select name="baker" id="baker" defaultValue={bread.baker}>
+                    {
+                        bakers.map((baker) => {
+                            return (
+                                <option value={baker.id} key={baker.id}>{baker.name}</option>
+                            )
+                        })
+                    }
+                </select>
 
-                <br/>
-                <input type="submit"/>
-                <div className="newButton">
-                <a href="/breads"><button>Back home</button></a>
-            </div>
+                <label htmlFor="hasGluten">Has Gluten</label>
+                <input
+                    type="checkbox"
+                    name="hasGluten"
+                    id="hasGluten"
+                    defaultChecked={bread.hasGluten} />
+                <br />
+
+                <input type="submit" />
             </form>
+
+            <div className="homeButton">
+                <a href="/breads">
+                    <button>Back Home</button>
+                </a>
+            </div>
         </Default>
     )
 }

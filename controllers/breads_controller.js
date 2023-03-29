@@ -1,71 +1,92 @@
-
 const express = require('express')
 const breads_router = express.Router()
-const Bread = require('../models/bread.js')
+const bread_schema = require('../models/bread')
+const baker_schema = require('../models/baker')
+const baker = require('../models/baker')
 
-// NEW ROUTE
+// DestroyAll
+breads_router.get('/data/destroy', (req, res) => {
+    bread_schema.deleteMany()
+        .then((deletedBread) => { res.redirect('/breads') })
+})
+
+// New
 breads_router.get('/new', (req, res) => {
-    res.render('new')
-})
-
-// EDIT ROUTE
-breads_router.get('/:arrayIndex/edit', (req, res) => {
-    res.render('edit', {
-        bread: Bread[req.params.arrayIndex],
-        index: req.params.arrayIndex
-    })
-})
-
-// SHOW ROUTE
-breads_router.get('/:arrayIndex', (req, res) => {
-    if (Bread[req.params.arrayIndex]) {
-        res.render('Show', {
-            bread:Bread[req.params.arrayIndex],
-            index: req.params.arrayIndex,
+    baker_schema.find()
+        .then((foundBakers) => {
+            res.render('new', { bakers: foundBakers })
         })
-    } else {
-        res.send('Whoopsie, page not found.')
-    }
 })
 
-// UPDATE ROUTE
-breads_router.put('/:arrayIndex', (req, res) => {
-    if(req.body.hasGluten === 'on') {
-        req.body.hasGluten = true
-    } else {
-        req.body.hasGluten = false
-    }
-    Bread[req.params.arrayIndex] = req.body
-    res.redirect(`/breads/${req.params.arrayIndex}`)
+// Edit
+breads_router.get('/:id/edit', (req, res) => {
+    baker_schema.find()
+        .then((foundBakers) => {
+            bread_schema.findById(req.params.id)
+                .then((foundBread) => { 
+                    res.render('edit', { 
+                        bread: foundBread,
+                        bakers: foundBakers,
+                    }) 
+                })
+                .catch((err) => { console.log(err) })
+        })
+        .catch((err) => { console.log(err) })   
 })
 
-// DELETE ROUTE
-breads_router.delete('/:arrayIndex', (req, res) => {
-    Bread.splice(req.params.arrayIndex, 1)
-    res.status(303).redirect('/breads')
+// Show
+breads_router.get('/:id', (req, res) => {
+    bread_schema.findById(req.params.id)
+        .populate('baker')
+        .then((foundBread) => { 
+            let bakedBy = foundBread.getBakedBy()
+            console.log(bakedBy)
+            res.render('show', { bread: foundBread }) 
+        })
+        .catch((err) => { console.log(err) })
 })
 
-// INDEX
+// Update
+breads_router.put('/:id', (req, res) => {
+    req.body.hasGluten = req.body.hasGluten === 'on'
+    bread_schema.findByIdAndUpdate(String(req.params.id), req.body, { new: true })
+        .then((updatedBread) => {
+            console.log(updatedBread)
+            res.redirect(`/breads/${req.params.id}`)
+        })
+        .catch((err) => { console.log(err) })
+})
+
+// Delete
+breads_router.delete('/:id', (req, res) => {
+    bread_schema.findByIdAndDelete(String(req.params.id))
+        .then((deletedBread) => { res.status(303).redirect('/breads') })
+        .catch((err) => { console.log(err) })
+})
+
+// Index
 breads_router.get('/', (req, res) => {
-    res.render('Index', 
-    {
-        breads: Bread,
-        title: 'Index Page'
-    })
-    // res.send(Bread)
+    baker_schema.find()
+        .then((foundBakers) => {
+            bread_schema.find()
+                .then((foundBreads) => {
+                    res.render('index', {
+                        breads: foundBreads,
+                        bakers: foundBakers,
+                        title: 'Index'
+                    })
+                })
+                .catch((err) => {
+                    console.log(err)
+                })  
+        })
 })
 
-// CREATE ROUTE
+// Create
 breads_router.post('/', (req, res) => {
-    if(!req.body.image) {
-        req.body.image = "https://www.seriouseats.com/thmb/gBMNe_J1QqbAz_QAXfW7-bRrhnw=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/better-no-knead-bread-recipe-hero-01_1-48d654bfadeb4a5caf9b233b00fc74ca.JPG"
-    }
-    if(req.body.hasGluten === 'on') {
-        req.body.hasGluten = true
-    } else {
-        req.body.hasGluten = false
-    }
-    Bread.push(req.body)
+    req.body.hasGluten = req.body.hasGluten === 'on'
+    bread_schema.create(req.body)
+        .catch(err => {console.log(err)})
     res.redirect('/breads')
 })
 
